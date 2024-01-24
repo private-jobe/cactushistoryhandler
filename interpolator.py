@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 from scipy.interpolate import interp1d
 import sqlalchemy
+import sys
 from datetime import datetime
 
 # Swedish month abbreviations to numbers
@@ -27,11 +28,12 @@ def swedish_date_parser(date_str):
 
 # Setup argument parser
 parser = argparse.ArgumentParser(description='Interpolate time series data to a specified interval.')
-parser.add_argument('interval', type=int, help='Interval time in seconds between interpolations')
+parser.add_argument('--interval', type=int, help='Interval time in seconds between interpolations', default=0)
 parser.add_argument('--start', type=str, help='Start date and time in YYYY-MM-DD HH:MM:SS format', default=None)
 parser.add_argument('--stop', type=str, help='Stop date and time in YYYY-MM-DD HH:MM:SS format', default=None)
 parser.add_argument('--method', type=str, help='Interpolation method', default='interp')
 parser.add_argument('--file', type=str, help='Location of the CSV file to read data from', default=None)
+parser.add_argument('--sep', type=str, help='Data separator', default=None)
 parser.add_argument('--dbstring', type=str, help='Database connection string', default=None)
 parser.add_argument('--table', type=str, help='Table name to query data from', default=None)
 
@@ -44,7 +46,7 @@ if args.file:
         print("Interval is 0. No processing has been done to the source file.")
         sys.exit(0)
     # Skip the first line (header=0) and set custom column names
-    df = pd.read_csv(args.file, header=0, names=['timestamp', 'value', 'info'], parse_dates=['timestamp'], date_parser=swedish_date_parser)
+    df = pd.read_csv(args.file, sep='\t', header=0, names=['timestamp', 'value', 'info'], parse_dates=['timestamp'], date_parser=swedish_date_parser)
 elif args.dbstring and args.table:
     engine = sqlalchemy.create_engine(args.dbstring)
     df = pd.read_sql_table(args.table, engine)
