@@ -3,6 +3,27 @@ import numpy as np
 import argparse
 from scipy.interpolate import interp1d
 import sqlalchemy
+from datetime import datetime
+
+# Swedish month abbreviations to numbers
+swedish_months = {
+    'JAN': '01', 'FEB': '02', 'MAR': '03',
+    'APR': '04', 'MAJ': '05', 'JUN': '06',
+    'JUL': '07', 'AUG': '08', 'SEP': '09',
+    'OKT': '10', 'NOV': '11', 'DEC': '12'
+}
+
+def swedish_date_parser(date_str):
+    # Split date string into components
+    day, month_abbr, year_time = date_str.split('-')
+    year, time = year_time.split(' ')
+    
+    # Replace Swedish month abbreviation with number
+    month = swedish_months.get(month_abbr.upper(), '00')
+
+    # Reassemble date string in a format that can be parsed by to_datetime
+    parseable_date_str = f"{day}-{month}-{year} {time}"
+    return pd.to_datetime(parseable_date_str, format='%d-%m-%y %H:%M:%S')
 
 # Setup argument parser
 parser = argparse.ArgumentParser(description='Interpolate time series data to a specified interval.')
@@ -23,7 +44,7 @@ if args.file:
         print("Interval is 0. No processing has been done to the source file.")
         sys.exit(0)
     # Skip the first line (header=0) and set custom column names
-    df = pd.read_csv(args.file, header=0, names=['timestamp', 'value', 'info'])
+    df = pd.read_csv(args.file, header=0, names=['timestamp', 'value', 'info'], parse_dates=['timestamp'], date_parser=swedish_date_parser)
 elif args.dbstring and args.table:
     engine = sqlalchemy.create_engine(args.dbstring)
     df = pd.read_sql_table(args.table, engine)
