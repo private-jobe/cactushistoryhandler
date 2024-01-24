@@ -19,11 +19,18 @@ args = parser.parse_args()
 
 # Read data from file or database
 if args.file:
+    if args.interval == 0:
+        print("Interval is 0. No processing has been done to the source file.")
+        sys.exit(0)
     # Skip the first line (header=0) and set custom column names
     df = pd.read_csv(args.file, header=0, names=['timestamp', 'value', 'info'])
 elif args.dbstring and args.table:
     engine = sqlalchemy.create_engine(args.dbstring)
     df = pd.read_sql_table(args.table, engine)
+    if args.interval == 0:
+        df.to_csv('database_data.csv')
+        print("Interval is 0. Database data has been passed through without interpolation.")
+        sys.exit(0)
 else:
     raise ValueError("Either --file or --dbstring and --table must be provided.")
 
