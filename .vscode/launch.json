@@ -11,7 +11,10 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": [ "--interval", "30", "--file", "./data/HH_V-VV-1051KVG-UF-UF6111_FLUX.TXT", "--sep", "tab" ]
+            "args": [ "--interval", "30",
+                    "--file", "./data/HH_V-VV-1051KVG-UF-UF6111_FLUX_shortened.TXT",
+                     "--sep", "tab",
+                    "--method", "nearest" ]
         }
     ]
 }
