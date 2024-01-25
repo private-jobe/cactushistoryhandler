@@ -89,7 +89,9 @@ else:
 df.set_index('timestamp', inplace=True)
 
 # Handle duplicates by averaging
-df = df.groupby(df.index).mean()
+#df = df.groupby(df.index).mean()
+a = df.groupby(df.index).cumcount()
+df.index = df.index + pd.to_timedelta(a, unit='ms')
 
 # Determine start and stop times for interpolation
 start_time = pd.to_datetime(args.start) if args.start else df.index.min()
@@ -124,7 +126,7 @@ if output_filepath == None:
 filepath = os.path.split(output_filepath)[0]
 filename = os.path.splitext(os.path.basename(output_filepath))[0]
 fileext = os.path.splitext(os.path.basename(output_filepath))[1]
-new_filename = filename + "_" + args.method
+new_filename = filename + "_" + (str)(args.interval) + "s_" + args.method
 new_filepath = filepath + "/" + new_filename + fileext
 
 # Optional: Save the interpolated data to a new CSV
@@ -144,8 +146,11 @@ print(f"Mean Squared Error (MSE): {mse}")
 print(f"Root Mean Squared Error (RMSE): {rmse}")
 print(f"R-squared: {r2}")
 
+
 # Check if plotting is required
 if args.plot:
+    sec = input('Press any key to plot data.')
+    
     # Turn on the interactive mode
     plt.ion()
 
