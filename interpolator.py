@@ -7,6 +7,7 @@ import sys
 from datetime import datetime
 import os
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # Swedish month abbreviations to numbers
 swedish_months = {
@@ -125,6 +126,20 @@ new_filepath = filepath + "/" + new_filename + fileext
 
 # Optional: Save the interpolated data to a new CSV
 new_df.to_csv(new_filepath, sep='\t')
+
+# Evaluate errors (assuming you have true values for comparison)
+true_values = original_df['value']
+interpolated_values = new_df['interpolated_data'].reindex(original_df.index, method='nearest')
+
+mae = mean_absolute_error(true_values, interpolated_values)
+mse = mean_squared_error(true_values, interpolated_values)
+rmse = np.sqrt(mse)
+r2 = r2_score(true_values, interpolated_values)
+
+print(f"Mean Absolute Error (MAE): {mae}")
+print(f"Mean Squared Error (MSE): {mse}")
+print(f"Root Mean Squared Error (RMSE): {rmse}")
+print(f"R-squared: {r2}")
 
 # Check if plotting is required
 if args.plot:
