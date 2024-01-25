@@ -88,6 +88,9 @@ else:
 # Set the timestamp as the index
 df.set_index('timestamp', inplace=True)
 
+# Handle duplicates by averaging
+df = df.groupby(df.index).mean()
+
 # Determine start and stop times for interpolation
 start_time = pd.to_datetime(args.start) if args.start else df.index.min()
 stop_time = pd.to_datetime(args.stop) if args.stop else df.index.max()
@@ -128,8 +131,8 @@ new_filepath = filepath + "/" + new_filename + fileext
 new_df.to_csv(new_filepath, sep='\t')
 
 # Evaluate errors (assuming you have true values for comparison)
-true_values = original_df['value']
-interpolated_values = new_df['interpolated_data'].reindex(original_df.index, method='nearest')
+true_values = df[original_header]
+interpolated_values = new_df[column_name].reindex(df.index, method='nearest')
 
 mae = mean_absolute_error(true_values, interpolated_values)
 mse = mean_squared_error(true_values, interpolated_values)
@@ -143,11 +146,17 @@ print(f"R-squared: {r2}")
 
 # Check if plotting is required
 if args.plot:
+    # Turn on the interactive mode
+    plt.ion()
+
     plt.figure(figsize=(12, 6))
-    plt.plot(df.index, df['value'], label='Original Data', marker='o')
-    plt.plot(new_df.index, new_df['interpolated_data'], label='Interpolated Data', linestyle='--')
+    plt.plot(df.index, df[original_header], label='Original Data', marker='o')
+    plt.plot(new_df.index, new_df[column_name], label='Interpolated Data', marker='x', linestyle='--')
     plt.title('Original vs Interpolated Data')
     plt.xlabel('Timestamp')
     plt.ylabel(original_header)
     plt.legend()
     plt.show()
+
+
+sec = input('Press any key to exit.')
