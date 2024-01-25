@@ -6,6 +6,7 @@ import sqlalchemy
 import sys
 from datetime import datetime
 import os
+import matplotlib.pyplot as plt
 
 # Swedish month abbreviations to numbers
 swedish_months = {
@@ -39,6 +40,7 @@ parser.add_argument('--file', type=str, help='Location of the CSV file to read d
 parser.add_argument('--sep', type=str, help='Data separator', default=None)
 parser.add_argument('--dbstring', type=str, help='Database connection string', default=None)
 parser.add_argument('--table', type=str, help='Table name to query data from', default=None)
+parser.add_argument('--plot', action='store_true', help='Plot the original and interpolated data')
 
 # Parse arguments
 args = parser.parse_args()
@@ -123,3 +125,14 @@ new_filepath = filepath + "/" + new_filename + fileext
 
 # Optional: Save the interpolated data to a new CSV
 new_df.to_csv(new_filepath, sep='\t')
+
+# Check if plotting is required
+if args.plot:
+    plt.figure(figsize=(12, 6))
+    plt.plot(df.index, df['value'], label='Original Data', marker='o')
+    plt.plot(new_df.index, new_df['interpolated_data'], label='Interpolated Data', linestyle='--')
+    plt.title('Original vs Interpolated Data')
+    plt.xlabel('Timestamp')
+    plt.ylabel(original_header)
+    plt.legend()
+    plt.show()
